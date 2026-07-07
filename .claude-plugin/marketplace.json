@@ -1,5 +1,6 @@
 {
   "name": "ai-visibility-audit",
+  "description": "Marketplace for the ai-visibility-audit Claude Code plugin.",
   "owner": { "name": "Nick Hernandez" },
   "plugins": [
     {
