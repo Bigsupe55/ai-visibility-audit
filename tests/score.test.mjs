@@ -279,3 +279,63 @@ test("llms.txt: absent but llms-full.txt present scores 10", () => {
 test("llms.txt: error sentinel means not assessed", () => {
   assert.equal(scoreLlmsTxt(null).assessed, false);
 });
+
+// ---------- Aggregation (spec §5.5-5.6) ----------
+
+function perfectInputs() {
+  return {
+    robots: robotsFixture(),
+    schema: schemaFixture({ types: ["Organization", "WebSite", "FAQPage", "BreadcrumbList", "Person"], sameAs: true }),
+    meta: metaFixture(),
+    llms: llmsFixture({ valid: true, fullPresent: true }),
+  };
+}
+
+test("overall: perfect inputs score 100, AI-ready", () => {
+  const doc = score(perfectInputs(), "homepage");
+  assert.equal(doc.overall.score, 100);
+  assert.equal(doc.overall.grade, "AI-ready");
+  assert.equal(doc.overall.assessed_weight, 100);
+  assert.equal(doc.version, "0.1.0");
+  assert.equal(doc.page_type, "homepage");
+});
+
+test("overall: unassessed category renormalizes the remaining weights", () => {
+  const inputs = perfectInputs();
+  inputs.robots = null; // tool failed
+  inputs.llms = llmsFixture({ valid: true }); // 90
+  const doc = score(inputs, "homepage");
+  // (100*25 + 100*20 + 90*15) / 60 = 97.5 -> 98
+  assert.equal(doc.overall.score, 98);
+  assert.equal(doc.overall.assessed_weight, 60);
+  assert.equal(doc.categories.find((c) => c.id === "crawler_access").assessed, false);
+});
+
+test("overall: all categories unassessed yields null score, 'Not assessed'", () => {
+  const doc = score({ robots: null, schema: null, meta: null, llms: null }, "homepage");
+  assert.equal(doc.overall.score, null);
+  assert.equal(doc.overall.grade, "Not assessed");
+  assert.equal(doc.overall.assessed_weight, 0);
+});
+
+test("grade bands match the spec boundaries", () => {
+  assert.equal(grade(85), "AI-ready");
+  assert.equal(grade(84), "Good — gaps to close");
+  assert.equal(grade(70), "Good — gaps to close");
+  assert.equal(grade(69), "Needs work");
+  assert.equal(grade(50), "Needs work");
+  assert.equal(grade(49), "At risk");
+  assert.equal(grade(0), "At risk");
+});
+
+test("priorities: Critical first, then effort, then weighted loss", () => {
+  const inputs = perfectInputs();
+  inputs.meta = metaFixture({ indexable: false });          // critical
+  inputs.llms = llmsFixture({ present: false });             // medium (capped), effort small
+  inputs.robots = robotsFixture({ blocked: ["GPTBot"] });    // low, effort quick_fix
+  const doc = score(inputs, "homepage");
+  assert.equal(doc.priorities[0], "indexing.noindex");
+  const last = doc.priorities[doc.priorities.length - 1];
+  assert.equal(last, "crawler_access.blocked.openai_training"); // only Low in this set
+  assert.ok(doc.priorities.includes("llms_txt.absent"));
+});

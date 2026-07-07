@@ -306,6 +306,37 @@ export function scoreLlmsTxt(llms) {
   return { ...CAT, assessed: true, score, findings };
 }
 
-// Temporary stubs — replaced in Tasks 3-6.
-export function grade() { throw new Error("not implemented"); }
-export function score() { throw new Error("not implemented"); }
+// ---------- Aggregation ----------
+
+export function grade(points) {
+  for (const [min, label] of GRADE_BANDS) if (points >= min) return label;
+  return "At risk";
+}
+
+export function score(inputs, pageType = "homepage") {
+  const categories = [
+    scoreCrawlerAccess(inputs.robots),
+    scoreStructuredData(inputs.schema, pageType),
+    scoreIndexing(inputs.meta),
+    scoreLlmsTxt(inputs.llms),
+  ];
+  const assessed = categories.filter((c) => c.assessed);
+  const assessedWeight = assessed.reduce((n, c) => n + c.weight, 0);
+  let overall;
+  if (assessedWeight === 0) {
+    overall = { score: null, grade: "Not assessed", assessed_weight: 0 };
+  } else {
+    const points = Math.round(assessed.reduce((n, c) => n + c.score * c.weight, 0) / assessedWeight);
+    overall = { score: points, grade: grade(points), assessed_weight: assessedWeight };
+  }
+  const priorities = categories
+    .flatMap((c) => c.findings)
+    .sort(
+      (a, b) =>
+        SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] ||
+        EFFORT_RANK[a.effort] - EFFORT_RANK[b.effort] ||
+        b.weighted_loss - a.weighted_loss,
+    )
+    .map((f) => f.id);
+  return { version: VERSION, page_type: pageType, categories, overall, priorities };
+}
