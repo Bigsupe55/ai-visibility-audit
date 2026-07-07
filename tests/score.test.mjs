@@ -147,3 +147,51 @@ test("crawler access: error sentinel means not assessed", () => {
   assert.equal(c.assessed, false);
   assert.equal(c.score, null);
 });
+
+// ---------- Category: Structured Data (spec §5.2) ----------
+
+test("structured data: fully marked-up homepage scores 100", () => {
+  const c = scoreStructuredData(schemaFixture({ types: ["Organization", "WebSite", "FAQPage", "BreadcrumbList", "Person"], sameAs: true }), "homepage");
+  assert.equal(c.score, 100);
+  assert.equal(c.findings.length, 0);
+});
+
+test("structured data: homepage with Org+WebSite+sameAs scores 75", () => {
+  const c = scoreStructuredData(schemaFixture({ types: ["Organization", "WebSite"], sameAs: true }), "homepage");
+  assert.equal(c.score, 75); // 35 + 20 + 20
+  assert.equal(c.findings.length, 3); // BreadcrumbList, FAQPage, Person
+  const faq = c.findings.find((f) => f.id === "structured_data.missing.faqpage");
+  assert.equal(faq.severity, "medium"); // 10 * 25/100 = 2.5
+});
+
+test("structured data: no JSON-LD at all is 0 with one High finding (not Critical)", () => {
+  const c = scoreStructuredData(schemaFixture({ blockCount: 0 }), "homepage");
+  assert.equal(c.score, 0);
+  assert.equal(c.findings.length, 1);
+  assert.equal(c.findings[0].severity, "high");
+});
+
+test("structured data: article page type uses the article point table", () => {
+  const c = scoreStructuredData(schemaFixture({ types: ["Article", "Organization", "Person"] }), "article");
+  assert.equal(c.score, 70); // 35 + 20 + 15
+  assert.equal(c.findings.length, 3); // WebSite, sameAs, BreadcrumbList
+  assert.ok(!c.findings.some((f) => f.id.includes("faqpage")), "FAQPage is N/A on articles");
+});
+
+test("structured data: parse-error penalty caps at 30", () => {
+  const c = scoreStructuredData(schemaFixture({ types: ["Organization", "WebSite", "FAQPage", "BreadcrumbList", "Person"], sameAs: true, parseErrors: 5 }), "homepage");
+  assert.equal(c.score, 70); // 100 - min(30, 50)
+  assert.equal(c.findings.length, 1);
+});
+
+test("structured data: sameAs requires an Organization or Person entity", () => {
+  const fixture = schemaFixture({ types: ["Organization"] });
+  fixture.entities = [{ types: ["Article"], name: "Post", hasSameAs: true }];
+  const c = scoreStructuredData(fixture, "homepage");
+  assert.ok(c.findings.some((f) => f.id === "structured_data.missing.sameas"));
+});
+
+test("structured data: error sentinel means not assessed", () => {
+  const c = scoreStructuredData(null, "homepage");
+  assert.equal(c.assessed, false);
+});

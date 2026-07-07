@@ -36,6 +36,22 @@ const PURPOSE_LABEL = {
   training: "training crawler",
 };
 
+const SCHEMA_POINTS = {
+  homepage: { Organization: 35, WebSite: 20, sameAs: 20, BreadcrumbList: 5, FAQPage: 10, Person: 10 },
+  article: { Organization: 20, WebSite: 10, sameAs: 10, BreadcrumbList: 10, Article: 35, Person: 15 },
+  other: { Organization: 30, WebSite: 15, sameAs: 15, BreadcrumbList: 10, FAQPage: 15, Person: 15 },
+};
+
+const SCHEMA_FIX = {
+  Organization: "Add an Organization JSON-LD block with name, url, logo, and sameAs links to official profiles.",
+  WebSite: "Add a WebSite JSON-LD block with the site name and url.",
+  Article: "Add an Article (or BlogPosting/NewsArticle) JSON-LD block with headline, author, and dates.",
+  FAQPage: "If the page answers common questions, mark them up with FAQPage JSON-LD.",
+  BreadcrumbList: "Add BreadcrumbList JSON-LD reflecting the page's position in the site structure.",
+  Person: "Add Person JSON-LD for the people behind the content (founder, author).",
+  sameAs: "Add sameAs links (official social/profile URLs) to the Organization or Person markup so AI systems can disambiguate the entity.",
+};
+
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "_");
 
 function severity(weightedLoss, { critical = false, capMedium = false } = {}) {
@@ -132,8 +148,62 @@ export function scoreCrawlerAccess(robots) {
   return { ...CAT, assessed: true, score: Math.max(0, 100 - penalty), findings };
 }
 
+// ---------- Category: Structured Data (weight 25) ----------
+
+export function scoreStructuredData(schema, pageType) {
+  const CAT = { id: "structured_data", label: "Structured Data", weight: 25 };
+  if (!schema) return { ...CAT, assessed: false, score: null, findings: [] };
+  const findings = [];
+
+  if (schema.blockCount === 0) {
+    findings.push(finding(CAT.id, CAT.weight, "no_json_ld", 100, {
+      effort: "small",
+      owner: "developer",
+      title: "No JSON-LD structured data at all",
+      detail: "The page ships no machine-readable description of who the site is or what the page contains — AI systems must guess from raw text.",
+      fix: "Start with an Organization block (name, url, logo, sameAs) and build from there.",
+    }));
+    return { ...CAT, assessed: true, score: 0, findings };
+  }
+
+  const table = SCHEMA_POINTS[pageType];
+  let earned = 0;
+  for (const [signal, points] of Object.entries(table)) {
+    const present =
+      signal === "sameAs"
+        ? schema.entities.some((e) => e.hasSameAs && e.types.some((t) => t === "Organization" || t === "Person"))
+        : schema.aiRelevant[signal] === true;
+    if (present) {
+      earned += points;
+    } else {
+      findings.push(finding(CAT.id, CAT.weight, `missing.${signal.toLowerCase()}`, points, {
+        effort: "small",
+        owner: "developer",
+        title: signal === "sameAs" ? "Missing sameAs entity links" : `Missing ${signal} markup`,
+        detail:
+          signal === "sameAs"
+            ? `No sameAs disambiguation found on an Organization or Person entity on this ${pageType} page.`
+            : `No ${signal} JSON-LD found on this ${pageType} page.`,
+        fix: SCHEMA_FIX[signal],
+      }));
+    }
+  }
+
+  let parsePenalty = 0;
+  if (schema.parseErrors > 0) {
+    parsePenalty = Math.min(30, schema.parseErrors * 10);
+    findings.push(finding(CAT.id, CAT.weight, "parse_errors", parsePenalty, {
+      effort: "small",
+      owner: "developer",
+      title: `${schema.parseErrors} JSON-LD block(s) fail to parse`,
+      detail: "Broken JSON-LD is invisible to every consumer — the markup may as well not exist.",
+      fix: "Validate the JSON-LD (e.g. with the schema.org validator) and fix the syntax errors.",
+    }));
+  }
+  return { ...CAT, assessed: true, score: Math.max(0, earned - parsePenalty), findings };
+}
+
 // Temporary stubs — replaced in Tasks 3-6.
-export function scoreStructuredData() { throw new Error("not implemented"); }
 export function scoreIndexing() { throw new Error("not implemented"); }
 export function scoreLlmsTxt() { throw new Error("not implemented"); }
 export function grade() { throw new Error("not implemented"); }
