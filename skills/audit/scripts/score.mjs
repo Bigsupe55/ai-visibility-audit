@@ -246,7 +246,66 @@ export function scoreIndexing(meta) {
   return { ...CAT, assessed: true, score: Math.max(0, 100 - penalty), findings };
 }
 
+// ---------- Category: llms.txt Adoption (weight 15) ----------
+
+export function scoreLlmsTxt(llms) {
+  const CAT = { id: "llms_txt", label: "llms.txt Adoption", weight: 15 };
+  if (!llms) return { ...CAT, assessed: false, score: null, findings: [] };
+  const findings = [];
+  const entry = llms.files.find((f) => f.file === "llms.txt");
+  const full = llms.files.find((f) => f.file === "llms-full.txt");
+  const fullPresent = full?.present === true;
+  let score;
+
+  if (!entry || entry.present !== true) {
+    score = 0;
+    findings.push(finding(CAT.id, CAT.weight, "absent", 90, {
+      capMedium: true,
+      effort: "small",
+      owner: "content",
+      title: "No llms.txt published",
+      detail: "llms.txt is an emerging standard: a concise, AI-readable index of the site. Adoption is still early, so this is an early-adopter advantage waiting to be claimed rather than a defect.",
+      fix: "Publish /llms.txt: an H1 title, a one-line summary blockquote, and H2 sections linking to key pages (see llmstxt.org).",
+    }));
+  } else if (entry.oversized === true) {
+    score = 55;
+    findings.push(finding(CAT.id, CAT.weight, "oversized", 35, {
+      capMedium: true,
+      effort: "quick_fix",
+      owner: "content",
+      title: "llms.txt is too large to validate",
+      detail: "llms.txt is meant to be a concise index (expanded content belongs in llms-full.txt). This file exceeds the 2 MB fetch limit.",
+      fix: "Slim llms.txt down to a short index; move full content to llms-full.txt.",
+    }));
+  } else if (entry.valid === true) {
+    score = 90;
+  } else {
+    score = 55;
+    findings.push(finding(CAT.id, CAT.weight, "invalid", 35, {
+      capMedium: true,
+      effort: "quick_fix",
+      owner: "content",
+      title: "llms.txt does not follow the spec",
+      detail: `The file exists but fails validation: ${(entry.warnings ?? []).join("; ") || "structure does not match llmstxt.org"}.`,
+      fix: "Fix the listed issues: H1 title first, optional summary blockquote, then H2 link sections.",
+    }));
+  }
+
+  if (fullPresent) {
+    score = Math.min(100, score + 10);
+  } else if (entry?.present === true && entry.valid === true) {
+    findings.push(finding(CAT.id, CAT.weight, "no_full", 10, {
+      capMedium: true,
+      effort: "project",
+      owner: "content",
+      title: "No llms-full.txt",
+      detail: "llms-full.txt carries the expanded content for AI systems that want more than the index.",
+      fix: "Consider publishing /llms-full.txt with the full text of key pages.",
+    }));
+  }
+  return { ...CAT, assessed: true, score, findings };
+}
+
 // Temporary stubs — replaced in Tasks 3-6.
-export function scoreLlmsTxt() { throw new Error("not implemented"); }
 export function grade() { throw new Error("not implemented"); }
 export function score() { throw new Error("not implemented"); }

@@ -233,3 +233,49 @@ test("indexing: penalties floor at 0", () => {
 test("indexing: error sentinel means not assessed", () => {
   assert.equal(scoreIndexing(null).assessed, false);
 });
+
+// ---------- Category: llms.txt Adoption (spec §5.4) ----------
+
+test("llms.txt: valid with llms-full.txt scores 100", () => {
+  const c = scoreLlmsTxt(llmsFixture({ valid: true, fullPresent: true }));
+  assert.equal(c.score, 100);
+  assert.equal(c.findings.length, 0);
+});
+
+test("llms.txt: valid without llms-full.txt scores 90 with a Low suggestion", () => {
+  const c = scoreLlmsTxt(llmsFixture({ valid: true }));
+  assert.equal(c.score, 90);
+  assert.equal(c.findings.length, 1);
+  assert.equal(c.findings[0].id, "llms_txt.no_full");
+  assert.equal(c.findings[0].severity, "low");
+  assert.equal(c.findings[0].effort, "project");
+});
+
+test("llms.txt: invalid scores 55 and severity caps at Medium", () => {
+  const c = scoreLlmsTxt(llmsFixture({ valid: false }));
+  assert.equal(c.score, 55);
+  const f = c.findings.find((x) => x.id === "llms_txt.invalid");
+  assert.equal(f.severity, "medium"); // 35 * 0.15 = 5.25 would be High; capped
+  assert.match(f.detail, /Missing H1 title/);
+});
+
+test("llms.txt: absent scores 0 with a Medium (capped) early-adopter finding", () => {
+  const c = scoreLlmsTxt(llmsFixture({ present: false }));
+  assert.equal(c.score, 0);
+  assert.equal(c.findings[0].severity, "medium"); // 90 * 0.15 = 13.5 capped from High
+  assert.match(c.findings[0].detail, /early-adopter/i);
+});
+
+test("llms.txt: oversized scores 55 (+10 with full present = 65)", () => {
+  assert.equal(scoreLlmsTxt(llmsFixture({ oversized: true })).score, 55);
+  assert.equal(scoreLlmsTxt(llmsFixture({ oversized: true, fullPresent: true })).score, 65);
+});
+
+test("llms.txt: absent but llms-full.txt present scores 10", () => {
+  const c = scoreLlmsTxt(llmsFixture({ present: false, fullPresent: true }));
+  assert.equal(c.score, 10);
+});
+
+test("llms.txt: error sentinel means not assessed", () => {
+  assert.equal(scoreLlmsTxt(null).assessed, false);
+});
