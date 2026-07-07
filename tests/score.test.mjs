@@ -339,3 +339,46 @@ test("priorities: Critical first, then effort, then weighted loss", () => {
   assert.equal(last, "crawler_access.blocked.openai_training"); // only Low in this set
   assert.ok(doc.priorities.includes("llms_txt.absent"));
 });
+
+// ---------- CLI (spec §5, header) ----------
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const SCORE_MJS = fileURLToPath(new URL("../skills/audit/scripts/score.mjs", import.meta.url));
+
+function writeInputs(dir, inputs) {
+  writeFileSync(join(dir, "robots.json"), JSON.stringify(inputs.robots ?? { error: "failed" }));
+  writeFileSync(join(dir, "llms.json"), JSON.stringify(inputs.llms ?? { error: "failed" }));
+  writeFileSync(join(dir, "schema.json"), JSON.stringify(inputs.schema ?? { error: "failed" }));
+  writeFileSync(join(dir, "meta.json"), JSON.stringify(inputs.meta ?? { error: "failed" }));
+}
+
+test("CLI: scores a directory of tool outputs", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ava-"));
+  writeInputs(dir, perfectInputs());
+  const out = JSON.parse(execFileSync(process.execPath, [SCORE_MJS, dir], { encoding: "utf8" }));
+  assert.equal(out.overall.score, 100);
+  assert.equal(out.page_type, "homepage");
+});
+
+test("CLI: --page-type article is honored and error sentinels are unassessed", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ava-"));
+  writeInputs(dir, { schema: schemaFixture({ types: ["Article"] }) }); // others are sentinels
+  const out = JSON.parse(execFileSync(process.execPath, [SCORE_MJS, dir, "--page-type", "article"], { encoding: "utf8" }));
+  assert.equal(out.page_type, "article");
+  assert.equal(out.overall.assessed_weight, 25);
+  assert.equal(out.categories.find((c) => c.id === "structured_data").score, 35);
+});
+
+test("CLI: invalid page type exits non-zero with usage", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ava-"));
+  writeInputs(dir, perfectInputs());
+  assert.throws(() => execFileSync(process.execPath, [SCORE_MJS, dir, "--page-type", "landing"], { encoding: "utf8" }));
+});
+
+test("CLI: missing dir argument exits non-zero", () => {
+  assert.throws(() => execFileSync(process.execPath, [SCORE_MJS], { encoding: "utf8" }));
+});

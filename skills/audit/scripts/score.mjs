@@ -340,3 +340,40 @@ export function score(inputs, pageType = "homepage") {
     .map((f) => f.id);
   return { version: VERSION, page_type: pageType, categories, overall, priorities };
 }
+
+// ---------- CLI ----------
+
+function readInput(dir, name) {
+  try {
+    const parsed = JSON.parse(readFileSync(join(dir, name), "utf8"));
+    return parsed && typeof parsed === "object" && !("error" in parsed) ? parsed : null;
+  } catch {
+    return null; // missing or unreadable file == tool failure
+  }
+}
+
+function main(argv) {
+  const args = argv.slice(2);
+  let pageType = "homepage";
+  const flagIdx = args.indexOf("--page-type");
+  if (flagIdx !== -1) {
+    pageType = args[flagIdx + 1];
+    args.splice(flagIdx, 2);
+  }
+  const dir = args[0];
+  if (!dir || !Object.hasOwn(SCHEMA_POINTS, pageType ?? "")) {
+    process.stderr.write("Usage: node score.mjs <dir> [--page-type homepage|article|other]\n");
+    process.exit(1);
+  }
+  const inputs = {
+    robots: readInput(dir, "robots.json"),
+    llms: readInput(dir, "llms.json"),
+    schema: readInput(dir, "schema.json"),
+    meta: readInput(dir, "meta.json"),
+  };
+  process.stdout.write(JSON.stringify(score(inputs, pageType), null, 2) + "\n");
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  main(process.argv);
+}
