@@ -278,7 +278,7 @@ test("crawler access: error sentinel means not assessed", () => {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: FAIL — `Cannot find module ...score.mjs`
 
 - [ ] **Step 3: Create `skills/audit/scripts/score.mjs` with constants, helpers, and `scoreCrawlerAccess`**
@@ -423,7 +423,7 @@ Note: `readFileSync`, `join`, `resolve`, `fileURLToPath` are used by the CLI ent
 
 - [ ] **Step 4: Run tests — crawler tests pass, later suites don't exist yet**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: FAIL overall — the file also imports `scoreStructuredData`, `scoreIndexing`, `scoreLlmsTxt`, `score`, `grade`, which don't exist yet. Add temporary stub exports at the bottom of `score.mjs` so the module loads and the crawler tests can run:
 
 ```js
@@ -435,7 +435,7 @@ export function grade() { throw new Error("not implemented"); }
 export function score() { throw new Error("not implemented"); }
 ```
 
-Run again: `node --test tests/`
+Run again: `node --test`
 Expected: PASS — 8 tests, all in the crawler suite.
 
 - [ ] **Step 5: Commit**
@@ -509,7 +509,7 @@ test("structured data: error sentinel means not assessed", () => {
 
 - [ ] **Step 2: Run tests to verify the new ones fail**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: FAIL — new tests hit the `not implemented` stub.
 
 - [ ] **Step 3: Replace the `scoreStructuredData` stub with the implementation**
@@ -591,7 +591,7 @@ export function scoreStructuredData(schema, pageType) {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: PASS — 15 tests.
 
 - [ ] **Step 5: Commit**
@@ -655,7 +655,7 @@ test("indexing: error sentinel means not assessed", () => {
 
 - [ ] **Step 2: Run tests to verify the new ones fail**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: FAIL — `not implemented` stub.
 
 - [ ] **Step 3: Replace the `scoreIndexing` stub**
@@ -707,7 +707,7 @@ export function scoreIndexing(meta) {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: PASS — 21 tests.
 
 - [ ] **Step 5: Commit**
@@ -779,7 +779,7 @@ test("llms.txt: error sentinel means not assessed", () => {
 
 - [ ] **Step 2: Run tests to verify the new ones fail**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: FAIL — `not implemented` stub.
 
 - [ ] **Step 3: Replace the `scoreLlmsTxt` stub**
@@ -848,7 +848,7 @@ export function scoreLlmsTxt(llms) {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: PASS — 28 tests.
 
 - [ ] **Step 5: Commit**
@@ -934,7 +934,7 @@ test("priorities: Critical first, then effort, then weighted loss", () => {
 
 - [ ] **Step 2: Run tests to verify the new ones fail**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: FAIL — `not implemented` stubs.
 
 - [ ] **Step 3: Replace the `grade` and `score` stubs**
@@ -980,7 +980,7 @@ Delete the now-unused stub comments if any remain.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: PASS — 33 tests.
 
 - [ ] **Step 5: Commit**
@@ -1051,7 +1051,7 @@ Note: `join` / `fileURLToPath` may already be imported at the top of the test fi
 
 - [ ] **Step 2: Run tests to verify the CLI tests fail**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: FAIL — CLI produces no output (no main entry yet), JSON.parse throws.
 
 - [ ] **Step 3: Append the CLI entry to `score.mjs`**
@@ -1097,7 +1097,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: PASS — 37 tests.
 
 - [ ] **Step 5: Commit**
@@ -1348,7 +1348,7 @@ Scoring is **deterministic**: a bundled zero-dependency script computes every nu
 ## Development
 
 ```bash
-node --test tests/        # scorer unit tests
+node --test        # scorer unit tests
 claude plugin validate .  # manifest + skill validation
 ```
 
@@ -1439,7 +1439,7 @@ for (const site of readdirSync(FIXTURES)) {
 
 Add `readFileSync` to the existing `node:fs` import in the test file if not already imported.
 
-Run: `node --test tests/`
+Run: `node --test`
 Expected: PASS — 37 unit tests + 2 fixture tests.
 
 - [ ] **Step 6: Revert any temporary `.mcp.json` change**
@@ -1462,7 +1462,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 
 - [ ] **Step 1: Full verification suite**
 
-Run: `node --test tests/` → all PASS.
+Run: `node --test` → all PASS.
 Run: `claude plugin validate .` → no errors.
 Run: `git status --short` → clean tree.
 
