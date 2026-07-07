@@ -1,0 +1,6 @@
+{
+  "name": "ai-visibility-audit",
+  "version": "0.1.0",
+  "description": "Run a scored AI-search visibility audit of any website and get a client-ready report — powered by the geo-inspector-mcp tools.",
+  "author": { "name": "Nick Hernandez" }
+}

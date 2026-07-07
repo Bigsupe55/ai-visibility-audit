@@ -1,0 +1,12 @@
+{
+  "name": "ai-visibility-audit",
+  "owner": { "name": "Nick Hernandez" },
+  "plugins": [
+    {
+      "name": "ai-visibility-audit",
+      "source": "./",
+      "description": "Run a scored AI-search visibility audit of any website and get a client-ready report — powered by the geo-inspector-mcp tools.",
+      "version": "0.1.0"
+    }
+  ]
+}
