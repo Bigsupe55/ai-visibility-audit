@@ -203,8 +203,50 @@ export function scoreStructuredData(schema, pageType) {
   return { ...CAT, assessed: true, score: Math.max(0, earned - parsePenalty), findings };
 }
 
+// ---------- Category: Indexing Directives (weight 20) ----------
+
+export function scoreIndexing(meta) {
+  const CAT = { id: "indexing", label: "Indexing Directives", weight: 20 };
+  if (!meta) return { ...CAT, assessed: false, score: null, findings: [] };
+  const findings = [];
+
+  if (meta.summary.indexable === false) {
+    findings.push(finding(CAT.id, CAT.weight, "noindex", 100, {
+      critical: true,
+      effort: "quick_fix",
+      owner: "developer",
+      title: "Page is set to noindex",
+      detail: "A noindex directive makes the page invisible to classic search and to every AI system that respects indexing directives.",
+      fix: "Remove the noindex directive (meta robots tag or X-Robots-Tag header) if this page should be findable.",
+    }));
+    return { ...CAT, assessed: true, score: 0, findings };
+  }
+
+  let penalty = 0;
+  if (meta.summary.followable === false) {
+    penalty += 30;
+    findings.push(finding(CAT.id, CAT.weight, "nofollow", 30, {
+      effort: "quick_fix",
+      owner: "developer",
+      title: "Links are set to nofollow",
+      detail: "nofollow tells crawlers not to follow links from this page, cutting off discovery of the rest of the site from here.",
+      fix: "Remove the nofollow directive unless there is a specific reason for it.",
+    }));
+  }
+  for (const d of [...new Set(meta.summary.aiDirectives)]) {
+    penalty += 20;
+    findings.push(finding(CAT.id, CAT.weight, `ai_directive.${slug(d)}`, 20, {
+      effort: "quick_fix",
+      owner: "developer",
+      title: `AI-specific restriction: ${d}`,
+      detail: `The ${d} directive asks AI systems not to use this page. Like blocking training crawlers, this is a deliberate choice — with a visibility cost.`,
+      fix: `If intentional, keep it. Otherwise remove the ${d} directive.`,
+    }));
+  }
+  return { ...CAT, assessed: true, score: Math.max(0, 100 - penalty), findings };
+}
+
 // Temporary stubs — replaced in Tasks 3-6.
-export function scoreIndexing() { throw new Error("not implemented"); }
 export function scoreLlmsTxt() { throw new Error("not implemented"); }
 export function grade() { throw new Error("not implemented"); }
 export function score() { throw new Error("not implemented"); }

@@ -195,3 +195,41 @@ test("structured data: error sentinel means not assessed", () => {
   const c = scoreStructuredData(null, "homepage");
   assert.equal(c.assessed, false);
 });
+
+// ---------- Category: Indexing Directives (spec §5.3) ----------
+
+test("indexing: clean page scores 100", () => {
+  const c = scoreIndexing(metaFixture());
+  assert.equal(c.score, 100);
+  assert.equal(c.findings.length, 0);
+});
+
+test("indexing: noindex zeroes the category with a Critical finding", () => {
+  const c = scoreIndexing(metaFixture({ indexable: false }));
+  assert.equal(c.score, 0);
+  assert.equal(c.findings.length, 1);
+  assert.equal(c.findings[0].id, "indexing.noindex");
+  assert.equal(c.findings[0].severity, "critical");
+});
+
+test("indexing: nofollow is -30 and High", () => {
+  const c = scoreIndexing(metaFixture({ followable: false }));
+  assert.equal(c.score, 70);
+  assert.equal(c.findings[0].severity, "high"); // 30 * 20/100 = 6
+});
+
+test("indexing: AI directives are deduped, -20 each", () => {
+  const c = scoreIndexing(metaFixture({ aiDirectives: ["noai", "noai", "noimageai"] }));
+  assert.equal(c.score, 60); // 100 - 2x20
+  assert.equal(c.findings.length, 2);
+  assert.equal(c.findings[0].severity, "high"); // 20 * 0.2 = 4
+});
+
+test("indexing: penalties floor at 0", () => {
+  const c = scoreIndexing(metaFixture({ followable: false, aiDirectives: ["a", "b", "c", "d"] }));
+  assert.equal(c.score, 0); // 100 - 30 - 80 floored
+});
+
+test("indexing: error sentinel means not assessed", () => {
+  assert.equal(scoreIndexing(null).assessed, false);
+});
