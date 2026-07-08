@@ -1,0 +1,15 @@
+{
+  "pageUrl": "https://www.anthropic.com/",
+  "blockCount": 0,
+  "parseErrors": 0,
+  "typeCounts": {},
+  "aiRelevant": {
+    "Organization": false,
+    "WebSite": false,
+    "Article": false,
+    "FAQPage": false,
+    "BreadcrumbList": false,
+    "Person": false
+  },
+  "entities": []
+}

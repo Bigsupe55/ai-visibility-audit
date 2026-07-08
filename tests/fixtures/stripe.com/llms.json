@@ -1,0 +1,51 @@
+{
+  "files": [
+    {
+      "file": "llms.txt",
+      "url": "https://stripe.com/llms.txt",
+      "present": true,
+      "status": 200,
+      "bytes": 64229,
+      "valid": true,
+      "title": "Stripe",
+      "hasSummary": true,
+      "sections": [
+        {"name":"Payments","linkCount":6},
+        {"name":"Connect","linkCount":7},
+        {"name":"Payment Links","linkCount":2},
+        {"name":"Checkout","linkCount":2},
+        {"name":"Elements","linkCount":2},
+        {"name":"Billing","linkCount":5},
+        {"name":"Invoicing","linkCount":3},
+        {"name":"Tax","linkCount":3},
+        {"name":"Atlas","linkCount":3},
+        {"name":"Terminal","linkCount":2},
+        {"name":"Radar","linkCount":4},
+        {"name":"Issuing","linkCount":3},
+        {"name":"Revenue Recognition","linkCount":2},
+        {"name":"Stripe Identity","linkCount":2},
+        {"name":"Financial Connections","linkCount":2},
+        {"name":"Treasury","linkCount":2},
+        {"name":"Capital","linkCount":3},
+        {"name":"Data Pipeline","linkCount":2},
+        {"name":"Sigma","linkCount":2},
+        {"name":"Climate","linkCount":4},
+        {"name":"Link","linkCount":1},
+        {"name":"Solutions","linkCount":12},
+        {"name":"Ecosystem","linkCount":3},
+        {"name":"Documentation","linkCount":5},
+        {"name":"Resources","linkCount":26},
+        {"name":"Other","linkCount":3},
+        {"name":"External domains","linkCount":2},
+        {"name":"Optional","linkCount":155}
+      ],
+      "warnings": []
+    },
+    {
+      "file": "llms-full.txt",
+      "url": "https://stripe.com/llms-full.txt",
+      "present": false,
+      "status": 404
+    }
+  ]
+}

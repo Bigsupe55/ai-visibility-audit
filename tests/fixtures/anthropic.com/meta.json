@@ -1,0 +1,11 @@
+{
+  "pageUrl": "https://www.anthropic.com/",
+  "status": 200,
+  "metaTags": [],
+  "xRobotsTag": [],
+  "summary": {
+    "indexable": true,
+    "followable": true,
+    "aiDirectives": []
+  }
+}

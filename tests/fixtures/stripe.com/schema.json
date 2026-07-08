@@ -1,0 +1,18 @@
+{
+  "pageUrl": "https://stripe.com/",
+  "blockCount": 1,
+  "parseErrors": 0,
+  "typeCounts": {"WebSite": 1, "Organization": 1},
+  "aiRelevant": {
+    "Organization": true,
+    "WebSite": true,
+    "Article": false,
+    "FAQPage": false,
+    "BreadcrumbList": false,
+    "Person": false
+  },
+  "entities": [
+    {"types": ["WebSite"], "name": "Stripe", "hasSameAs": false},
+    {"types": ["Organization"], "name": "Stripe", "hasSameAs": true}
+  ]
+}

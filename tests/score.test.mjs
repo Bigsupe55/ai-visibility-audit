@@ -342,7 +342,7 @@ test("priorities: Critical first, then effort, then weighted loss", () => {
 
 // ---------- CLI (spec §5, header) ----------
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -382,3 +382,18 @@ test("CLI: invalid page type exits non-zero with usage", () => {
 test("CLI: missing dir argument exits non-zero", () => {
   assert.throws(() => execFileSync(process.execPath, [SCORE_MJS], { encoding: "utf8" }));
 });
+
+// ---------- Captured-fixture regression (spec §9) ----------
+
+const FIXTURES = fileURLToPath(new URL("./fixtures/", import.meta.url));
+
+for (const site of readdirSync(FIXTURES)) {
+  test(`captured fixtures: ${site} produces a valid score document`, () => {
+    const read = (n) => JSON.parse(readFileSync(join(FIXTURES, site, n), "utf8"));
+    const inputs = { robots: read("robots.json"), llms: read("llms.json"), schema: read("schema.json"), meta: read("meta.json") };
+    const doc = score(inputs, "homepage");
+    assert.ok(doc.overall.score >= 0 && doc.overall.score <= 100);
+    assert.equal(doc.categories.length, 4);
+    for (const c of doc.categories) assert.equal(c.assessed, true);
+  });
+}

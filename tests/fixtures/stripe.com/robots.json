@@ -1,0 +1,25 @@
+{
+  "robotsUrl": "https://stripe.com/robots.txt",
+  "fetched": true,
+  "status": 200,
+  "path": "/",
+  "sitemaps": ["https://stripe.com/sitemap/sitemap.xml"],
+  "groupCount": 3,
+  "crawlers": [
+    {"name":"GPTBot","vendor":"OpenAI","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"OAI-SearchBot","vendor":"OpenAI","purpose":"search","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"ChatGPT-User","vendor":"OpenAI","purpose":"user_fetch","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"ClaudeBot","vendor":"Anthropic","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"Claude-SearchBot","vendor":"Anthropic","purpose":"search","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"Claude-User","vendor":"Anthropic","purpose":"user_fetch","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"anthropic-ai","vendor":"Anthropic","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"PerplexityBot","vendor":"Perplexity","purpose":"search","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"Perplexity-User","vendor":"Perplexity","purpose":"user_fetch","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"Google-Extended","vendor":"Google","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"CCBot","vendor":"Common Crawl","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"Bytespider","vendor":"ByteDance","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"Applebot-Extended","vendor":"Apple","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"meta-externalagent","vendor":"Meta","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null},
+    {"name":"cohere-ai","vendor":"Cohere","purpose":"training","access":"allowed","matchedGroup":"*","matchedRule":null}
+  ]
+}

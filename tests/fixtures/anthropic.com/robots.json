@@ -1,0 +1,25 @@
+{
+  "robotsUrl": "https://www.anthropic.com/robots.txt",
+  "fetched": true,
+  "status": 200,
+  "path": "/",
+  "sitemaps": ["https://www.anthropic.com/sitemap.xml"],
+  "groupCount": 1,
+  "crawlers": [
+    {"name": "GPTBot", "vendor": "OpenAI", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "OAI-SearchBot", "vendor": "OpenAI", "purpose": "search", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "ChatGPT-User", "vendor": "OpenAI", "purpose": "user_fetch", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "ClaudeBot", "vendor": "Anthropic", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "Claude-SearchBot", "vendor": "Anthropic", "purpose": "search", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "Claude-User", "vendor": "Anthropic", "purpose": "user_fetch", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "anthropic-ai", "vendor": "Anthropic", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "PerplexityBot", "vendor": "Perplexity", "purpose": "search", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "Perplexity-User", "vendor": "Perplexity", "purpose": "user_fetch", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "Google-Extended", "vendor": "Google", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "CCBot", "vendor": "Common Crawl", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "Bytespider", "vendor": "ByteDance", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "Applebot-Extended", "vendor": "Apple", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "meta-externalagent", "vendor": "Meta", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"},
+    {"name": "cohere-ai", "vendor": "Cohere", "purpose": "training", "access": "allowed", "matchedGroup": "*", "matchedRule": "Allow: /"}
+  ]
+}
