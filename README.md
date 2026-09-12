@@ -1,8 +1,11 @@
 # ai-visibility-audit
 
+[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-6b4fbb)](https://docs.claude.com/en/docs/claude-code)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Ask Claude for a scored, client-ready **AI visibility audit** of any website: is the site readable, quotable, and citable by ChatGPT, Claude, Perplexity, and AI search?
 
-<!-- demo GIF goes here: record /ai-visibility-audit:audit running against a real site -->
+A Claude Code plugin, not a library. It ships as a skill plus a deterministic scoring script, and bundles the [geo-inspector-mcp](https://github.com/Bigsupe55/geo-inspector-mcp) server that does the actual fetching.
 
 ## Why this exists
 
@@ -37,4 +40,4 @@ claude plugin validate .  # manifest + skill validation
 
 ## License
 
-MIT
+MIT, see [LICENSE](LICENSE).
